@@ -8,13 +8,14 @@ use Illuminate\Notifications\Notifiable;
 
 class Band extends Model
 {
+    /** @use HasFactory<\Database\Factories\BandFactory> */
     use HasFactory, Notifiable;
 
-    private array $validationRules = [
+    public array $validationRules = [
         'name' => 'required',
         'description' => 'required',
         'genres' => 'required',
-        'image' => 'required',
+        'photo' => 'required',
         'artist_id' => 'required',
         'album_id' => 'required'
     ];
@@ -30,7 +31,7 @@ class Band extends Model
         'slug',
         'description',
         'genres',
-        'image',
+        'photo',
         'artist_id',
         'album_id',
     ];

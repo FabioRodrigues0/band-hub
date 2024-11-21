@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Album;
+use App\Models\Artist;
 use App\Models\Band;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class BandController extends Controller
 {
@@ -12,7 +17,12 @@ class BandController extends Controller
      */
     public function index()
     {
-        //
+        $bands = Band::class
+            ->join('albums', 'bands.album_id', '=', 'albums.id')
+            ->groupBy('bands.album_id')
+            ->select('bands.*', 'count(albums.id) as totalAlbums');
+
+        return view('bands.all', compact('bands'));
     }
 
     /**
@@ -20,7 +30,10 @@ class BandController extends Controller
      */
     public function create()
     {
-        //
+        $artists = Artist::all();
+        $albums = Album::all();
+
+        view('bands.create', compact('albums', 'artists'));
     }
 
     /**
@@ -28,23 +41,49 @@ class BandController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate(Band::class->validationRules);
+
+        $photo = null;
+
+        if ($request->hasFile('photo')) {
+            $photo = Storage::putFile('uploadedImages', $request->photo);
+        }
+
+        Band::class->insert([
+                'name' => $request->name,
+                'slug' => Str::kebab($request->name),
+                'description' => $request->description,
+                'genres' => $request->genres,
+                'photo' => $photo,
+                'artist_id' => $request->artist_id,
+                'album_id'=> $request->album_id
+            ]);
+
+        return redirect()->route('bands.all')->with('message', 'New band added successfully!');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Band $band)
+    public function show($id)
     {
-        //
+        $band = Band::class
+            ->where('id' , $id)
+            ->first();
+
+        return view('bands.show', compact('band'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Band $band)
+    public function edit($id)
     {
-        //
+        $editBands = Band::class
+            ->where('id' , $id)
+            ->first();
+
+        return view('bands.edit', compact('editBands'));
     }
 
     /**
@@ -52,14 +91,36 @@ class BandController extends Controller
      */
     public function update(Request $request, Band $band)
     {
-        //
+        $photo = null;
+
+        if ($request->hasFile('photo')) {
+            $photo = Storage::putFile('uploadedImages', $request->photo);
+        }
+
+        Band::class
+            ->where('id', $request->id)
+            ->update([
+                'name' => $request->name,
+                'slug' => Str::kebab($request->name),
+                'description' => $request->description,
+                'genres' => $request->genres,
+                'photo' => $photo,
+                'artist_id' => $request->artist_id,
+                'album_id'=> $request->album_id
+            ]);
+
+        return redirect()->route('bands.all')->with('message', 'Band updated successfully!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Band $band)
+    public function destroy($id): RedirectResponse
     {
-        //
+        Band::class
+            ::where('id', $id)
+            ->delete();
+
+        return back()->with('message', 'Band deleted successfully!');
     }
 }
