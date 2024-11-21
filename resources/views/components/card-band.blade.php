@@ -1,17 +1,15 @@
-<div>
+<a href="{{route('bands.show', $slug )}}">
     <!-- Simplicity is the consequence of refined emotions. - Jean D'Alembert -->
     <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <div class="h-56 w-full">
-            <a href="#">
-                <img class="mx-auto h-full dark:hidden"
+                <img class="mx-auto h-full dark:hidden rounded-full"
                      @isset($image) src="{{ $image }}" @endif @isset($title) alt="{{ $title }}" @endif/>
-                <img class="mx-auto hidden h-full dark:block"
+                <img class="mx-auto hidden h-full dark:block rounded-full"
                      @isset($image) src="{{ $image }}" @endif @isset($title) alt="{{ $title }}" @endif/>
-            </a>
         </div>
         <div class="pt-6">
 
-            <span href="#" class="text-lg font-semibold leading-tight text-gray-900 hover:underline dark:text-white">
+            <span class="text-lg font-semibold leading-tight text-gray-900 hover:underline dark:text-white">
                 @isset($title) {{ $title }} @endif
             </span>
             <span class="bg-{{$colors[array_rand($colors)]}}-100 text-{{$colors[array_rand($colors)]}}-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-{{$colors[array_rand($colors)]}}-900 dark:text-{{$colors[array_rand($colors)]}}-300">
@@ -34,4 +32,4 @@
             </div>
         </div>
     </div>
-</div>
+</a>

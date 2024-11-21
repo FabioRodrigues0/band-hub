@@ -8,6 +8,7 @@ use Illuminate\View\Component;
 class CardBand extends Component
 {
     public $title;
+    public $slug;
     public $subtitle;
     public $description;
     public $image;
@@ -16,9 +17,10 @@ class CardBand extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct($title, $subtitle, $description, $image)
+    public function __construct($title, $slug, $subtitle, $description, $image)
     {
         $this->title = $title;
+        $this->slug = $slug;
         $this->subtitle = $subtitle;
         $this->description = $description;
         $this->image = $image;

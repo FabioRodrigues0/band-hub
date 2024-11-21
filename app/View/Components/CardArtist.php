@@ -8,13 +8,15 @@ use Illuminate\View\Component;
 class CardArtist extends Component
 {
     public $name;
+    public $slug;
     public $image;
     /**
      * Create a new component instance.
      */
-    public function __construct($name, $image)
+    public function __construct($name, $slug, $image)
     {
         $this->name = $name;
+        $this->slug = $slug;
         $this->image = $image;
     }
 

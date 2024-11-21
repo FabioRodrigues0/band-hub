@@ -61,8 +61,10 @@ class ArtistController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Artist $artist)
+    public function destroy($id)
     {
-        //
+        Artist::class
+            ::where('id', $id)
+            ->delete();
     }
 }

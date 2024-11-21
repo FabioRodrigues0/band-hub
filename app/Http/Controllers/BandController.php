@@ -7,6 +7,7 @@ use App\Models\Artist;
 use App\Models\Band;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -20,7 +21,7 @@ class BandController extends Controller
         $bands = Band::class
             ->join('albums', 'bands.album_id', '=', 'albums.id')
             ->groupBy('bands.album_id')
-            ->select('bands.*', 'count(albums.id) as totalAlbums');
+            ->select('bands.*', "count(albums.id) as 'Total Albums'");
 
         return view('bands.all', compact('bands'));
     }
@@ -67,11 +68,10 @@ class BandController extends Controller
      */
     public function show($id)
     {
-        $band = Band::class
-            ->where('id' , $id)
-            ->first();
+        $band = DB::table('bands')->where('slug' , $id)->first();
+        $albums = DB::table('albums')->where('id', $band->album_id)->get();
 
-        return view('bands.show', compact('band'));
+        return view('details', compact('band', 'albums'));
     }
 
     /**
@@ -89,7 +89,7 @@ class BandController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Band $band)
+    public function update(Request $request)
     {
         $photo = null;
 

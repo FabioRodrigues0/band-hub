@@ -45,3 +45,12 @@ body {
 *::-webkit-scrollbar-thumb:active {
     background-color: rgb(70, 70, 70);
 }
+
+.title-clamp {
+    font-size: clamp(20px, 6vw, 70px);
+    line-height: 1;
+}
+
+.myrounded{
+
+}
