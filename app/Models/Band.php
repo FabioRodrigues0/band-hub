@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
 
 class Band extends Model
@@ -11,13 +13,11 @@ class Band extends Model
     /** @use HasFactory<\Database\Factories\BandFactory> */
     use HasFactory, Notifiable;
 
-    public array $validationRules = [
+    public static array $validationRules = [
         'name' => 'required',
         'description' => 'required',
         'genres' => 'required',
-        'photo' => 'required',
-        'artist_id' => 'required',
-        'album_id' => 'required'
+        'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
     ];
 
 
@@ -31,8 +31,16 @@ class Band extends Model
         'slug',
         'description',
         'genres',
-        'photo',
-        'artist_id',
-        'album_id',
+        'image',
     ];
+
+    public function albums(): HasMany
+    {
+        return $this->hasMany(Album::class);
+    }
+
+    public function artists(): BelongsToMany
+    {
+        return $this->belongsToMany(Artist::class, 'artist_band');
+    }
 }

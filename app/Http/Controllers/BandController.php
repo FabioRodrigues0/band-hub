@@ -14,14 +14,23 @@ use Illuminate\Support\Str;
 class BandController extends Controller
 {
     /**
+     * Constructor to set middleware
+     */
+    public function __construct()
+    {
+        // Apply auth middleware only to create, edit, update, and delete methods
+        $this->middleware('auth')->only(['create', 'store', 'edit', 'update', 'destroy']);
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $bands = Band::class
-            ->join('albums', 'bands.album_id', '=', 'albums.id')
+        $bands = Band::join('albums', 'bands.album_id', '=', 'albums.id')
             ->groupBy('bands.album_id')
-            ->select('bands.*', "count(albums.id) as 'Total Albums'");
+            ->select('bands.*', DB::raw("count(albums.id) as total_albums"))
+            ->get();
 
         return view('bands.all', compact('bands'));
     }
@@ -31,10 +40,7 @@ class BandController extends Controller
      */
     public function create()
     {
-        $artists = Artist::all();
-        $albums = Album::all();
-
-        view('bands.create', compact('albums', 'artists'));
+        return view('details', ['type' => 'band', 'openDrawer' => true]);
     }
 
     /**
@@ -42,36 +48,46 @@ class BandController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate(Band::class->validationRules);
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'description' => 'nullable|string',
+            'genres' => 'nullable|string'
+        ]);
 
-        $photo = null;
+        $band = Band::create([
+            'name' => $validatedData['name'],
+            'description' => $validatedData['description'] ?? null,
+            'slug' => Str::slug($validatedData['name']),
+            'genres' => $validatedData['genres'] ?? null
+        ]);
 
-        if ($request->hasFile('photo')) {
-            $photo = Storage::putFile('uploadedImages', $request->photo);
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('bandsImages', 'public');
+            $band->image = $path;
+            $band->save();
         }
 
-        Band::class->insert([
-                'name' => $request->name,
-                'slug' => Str::kebab($request->name),
-                'description' => $request->description,
-                'genres' => $request->genres,
-                'photo' => $photo,
-                'artist_id' => $request->artist_id,
-                'album_id'=> $request->album_id
-            ]);
-
-        return redirect()->route('bands.all')->with('message', 'New band added successfully!');
+        return response()->json([
+            'message' => 'Band created successfully',
+            'redirect' => route('band.show', $band->slug)
+        ]);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($slug)
     {
-        $band = DB::table('bands')->where('slug' , $id)->first();
-        $albums = DB::table('albums')->where('id', $band->album_id)->get();
-
-        return view('details', compact('band', 'albums'));
+        $band = Band::with(['albums', 'artists'])
+            ->where('slug', $slug)
+            ->firstOrFail();
+        
+        return view('details', [
+            'type' => 'band',
+            'item' => $band,
+            'albums' => $band->albums
+        ]);
     }
 
     /**
@@ -79,8 +95,7 @@ class BandController extends Controller
      */
     public function edit($id)
     {
-        $editBands = Band::class
-            ->where('id' , $id)
+        $editBands = Band::where('id' , $id)
             ->first();
 
         return view('bands.edit', compact('editBands'));
@@ -89,38 +104,52 @@ class BandController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(Request $request, Band $band)
     {
-        $photo = null;
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'description' => 'nullable|string',
+            'genres' => 'nullable|string'
+        ]);
 
-        if ($request->hasFile('photo')) {
-            $photo = Storage::putFile('uploadedImages', $request->photo);
+        $data = [
+            'name' => $validatedData['name'],
+            'description' => $validatedData['description'] ?? null,
+            'genres' => $validatedData['genres'] ?? null,
+            'slug' => Str::slug($validatedData['name'])
+        ];
+
+        if ($request->hasFile('image')) {
+            // Delete old image if it exists
+            if ($band->image) {
+                Storage::disk('public')->delete($band->image);
+            }
+
+            $path = $request->file('image')->store('bandsImages', 'public');
+            $data['image'] = $path;
         }
 
-        Band::class
-            ->where('id', $request->id)
-            ->update([
-                'name' => $request->name,
-                'slug' => Str::kebab($request->name),
-                'description' => $request->description,
-                'genres' => $request->genres,
-                'photo' => $photo,
-                'artist_id' => $request->artist_id,
-                'album_id'=> $request->album_id
-            ]);
+        $band->update($data);
 
-        return redirect()->route('bands.all')->with('message', 'Band updated successfully!');
+        return response()->json([
+            'message' => 'Band updated successfully',
+            'redirect' => route('band.show', $band->slug)
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id): RedirectResponse
+    public function destroy(Band $band)
     {
-        Band::class
-            ::where('id', $id)
-            ->delete();
+        // Delete the band's image if it exists
+        if ($band->image) {
+            Storage::disk('public')->delete($band->image);
+        }
 
-        return back()->with('message', 'Band deleted successfully!');
+        $band->delete();
+
+        return redirect()->route('home')->with('message', 'Band deleted successfully');
     }
 }

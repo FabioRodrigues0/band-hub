@@ -2,24 +2,18 @@
 
 namespace App\View\Components\Sidebar;
 
-use Closure;
-use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
 class SidebarItem extends Component
 {
-    /**
-     * Create a new component instance.
-     */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(
+        public string $href = '#',
+        public string $icon = '',
+        public string $text = '',
+        public bool $disabled = false
+    ) {}
 
-    /**
-     * Get the view / contents that represent the component.
-     */
-    public function render(): View|Closure|string
+    public function render()
     {
         return view('components.sidebar.sidebar-item');
     }

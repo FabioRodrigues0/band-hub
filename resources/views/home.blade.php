@@ -1,67 +1,79 @@
-@extends('layout.index')
+@extends('layouts.app')
+
 @section('content')
-    <div class="mx-auto max-w-screen-xl px-2 2xl:px-0">
-        <!-- Heading & Filters -->
-        <div class="mb-4 w-full items-end justify-between space-y-4 sm:flex sm:space-y-0 md:mb-8">
-            <div>
-                <h2 class="mt-3 text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">Popular Artist</h2>
-                <hr>
-            </div>
+<div class="min-h-screen p-6">
+    @if(Auth::check())
+        <h1 class="text-4xl font-bold mb-8 text-gray-200">Hello, {{ Auth::user()->name }}</h1>
+    @else
+        <x-welcome-message />
+    @endif
+
+    <!-- Recently Played Section -->
+    <section class="mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-200">Recently Played</h2>
+            <a href="{{ route('list', ['type' => 'recently-played']) }}" class="text-sm text-gray-400 hover:text-white">View All</a>
         </div>
-        @isset($artists)
-        <div class="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 grid-cols-4 xl:grid-cols-4">
-            @foreach ($artists as $artist)
-                <x-card-artist
-                    name="{{ $artist->name }}"
-                    slug="{{ $artist->slug }}"
-                    image="https://media.istockphoto.com/id/523513953/pt/foto/times-square-em-nova-iorque.webp?s=2048x2048&w=is&k=20&c=MBX1SR5pngtD-NnkPSqTgcDiTN0WRyedFDGvC0xOGBE="/>
-            @endforeach
-                <x-card-artist
-                    name="{{ $artists[0]->name }}"
-                    slug="{{ $artists[0]->slug }}"
-                    image="https://media.istockphoto.com/id/523513953/pt/foto/times-square-em-nova-iorque.webp?s=2048x2048&w=is&k=20&c=MBX1SR5pngtD-NnkPSqTgcDiTN0WRyedFDGvC0xOGBE="/>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+            @forelse($recentlyPlayed as $item)
+                <div class="w-full">
+                    <x-Cards.card-album :album="$item" />
+                </div>
+            @empty
+                <div class="col-span-4 text-center text-gray-400">No recently played items found</div>
+            @endforelse
         </div>
-        @endisset
-    </div>
-    <div class="mx-auto max-w-screen-xl px-4 2xl:px-0">
-        <!-- Heading & Filters -->
-        <div class="mb-4 w-full items-end justify-between space-y-4 sm:flex sm:space-y-0 md:mb-8">
-            <div>
-                <h2 class="mt-3 text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">Popular Bands</h2>
-                <hr>
-            </div>
+    </section>
+
+    <!-- Popular Artists Section -->
+    <section class="mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-200">Popular Artists</h2>
+            <a href="{{ route('list', ['type' => 'artists']) }}" class="text-sm text-gray-400 hover:text-white">View All</a>
         </div>
-        @isset($bands)
-        <div class="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
-            @foreach ($bands as $band)
-                <x-card-band
-                    title="{{ $band->name }}"
-                    slug="{{$band->slug}}"
-                    subtitle="{{ $band->genres }}"
-                    image="https://media.istockphoto.com/id/523513953/pt/foto/times-square-em-nova-iorque.webp?s=2048x2048&w=is&k=20&c=MBX1SR5pngtD-NnkPSqTgcDiTN0WRyedFDGvC0xOGBE="
-                    description="{{ $band->description }}"/>
-            @endforeach
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+            @forelse($artists as $artist)
+                <div class="w-full">
+                    <x-Cards.card-artist :artist="$artist" />
+                </div>
+            @empty
+                <div class="col-span-4 text-center text-gray-400">No artists found</div>
+            @endforelse
         </div>
-        @endisset
-    </div>
-    <div class="mx-auto w-full max-w-screen-xl px-4 2xl:px-0">
-        <!-- Heading & Filters -->
-        <div class="mb-4 items-end justify-between space-y-4 sm:flex sm:space-y-0 md:mb-8">
-            <div>
-                <h2 class="mt-3 text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">Popular Albums</h2>
-                <hr>
-            </div>
+    </section>
+
+    <!-- Popular Bands Section -->
+    <section class="mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-200">Popular Bands</h2>
+            <a href="{{ route('list', ['type' => 'bands']) }}" class="text-sm text-gray-400 hover:text-white">View All</a>
         </div>
-        @isset($albums)
-        <div class="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
-            @foreach ($albums as $album)
-                <x-card-album
-                    title="{{ $album->name }}"
-                    subtitle="{{ $album-> year_release }}"
-                    image="https://miro.medium.com/v2/resize:fit:720/format:webp/1*nUF9iG88r6W9rCHv7Ca7AQ.png"
-                    description="{{ $album->description }}"/>
-            @endforeach
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+            @forelse($bands as $band)
+                <div class="w-full">
+                    <x-Cards.card-band :band="$band" />
+                </div>
+            @empty
+                <div class="col-span-4 text-center text-gray-400">No bands found</div>
+            @endforelse
         </div>
-        @endisset
-    </div>
+    </section>
+
+    <!-- Featured Albums Section -->
+    <section>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-200">Featured Albums</h2>
+            <a href="{{ route('list', ['type' => 'albums']) }}" class="text-sm text-gray-400 hover:text-white">View All</a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+            @forelse($albums as $album)
+                <div class="w-full">
+                    <x-Cards.card-album :album="$album" />
+                </div>
+            @empty
+                <div class="col-span-4 text-center text-gray-400">No albums found</div>
+            @endforelse
+        </div>
+    </section>
+</div>
 @endsection
