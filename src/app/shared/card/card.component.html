@@ -1,0 +1,19 @@
+<div class="relative group cursor-pointer" [routerLink]="routerLink">
+  <div class="aspect-square overflow-hidden rounded-lg bg-zinc-800">
+    <img
+      [src]="getImage()"
+      [alt]="getName()"
+      class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+      (error)="handleImageError($event)"
+    >
+  </div>
+  <div class="mt-4">
+    <h3 class="text-lg font-semibold text-zinc-200 truncate">{{ getName() }}</h3>
+    <ng-container *ngIf="type === 'album' && isAlbum(item)">
+      <div class="text-xs text-zinc-400" *ngIf="item.artist">
+        {{ item.artist.name }}
+      </div>
+    </ng-container>
+    <p class="text-sm text-zinc-500 truncate">{{ type | titlecase }}</p>
+  </div>
+</div>

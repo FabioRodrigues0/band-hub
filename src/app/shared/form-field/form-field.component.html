@@ -1,0 +1,22 @@
+<div class="mb-4">
+  <label class="block mb-2">
+    <span class="text-sm font-medium">
+      {{ label }}
+      <span *ngIf="isRequired" class="text-red-500">*</span>
+    </span>
+  </label>
+
+  <div class="relative">
+    <ng-content></ng-content>
+  </div>
+
+  <!-- Hint text -->
+  <div *ngIf="hint && !hasError" class="mt-1 text-sm text-gray-500">
+    {{ hint }}
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="showErrors && hasError" @fadeInOut class="mt-1 text-sm text-red-500">
+    {{ errorMessage }}
+  </div>
+</div>

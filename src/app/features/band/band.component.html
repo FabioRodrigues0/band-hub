@@ -1,0 +1,210 @@
+<div class="container mx-auto px-4 py-8">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center items-center min-h-[400px]">
+    <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-zinc-400"></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="text-center min-h-[400px] flex flex-col items-center justify-center">
+    <h2 class="text-2xl font-bold text-zinc-200 mb-4">{{ error }}</h2>
+    <a routerLink="/" class="btn btn-zinc">Go Home</a>
+  </div>
+
+  <!-- Content -->
+  <ng-container *ngIf="!isLoading && !error && band">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row gap-8 mb-12">
+      <!-- Band Image -->
+      <div class="w-full md:w-1/3">
+        <div class="aspect-square rounded-lg overflow-hidden bg-zinc-800">
+          <img
+            [ngSrc]="band.image || getDefaultImage()"
+            [alt]="band.name"
+            [width]="400"
+            [height]="400"
+            class="w-full h-full object-cover"
+            [appImageFallback]="getDefaultImage()"
+            priority="true"
+          />
+        </div>
+      </div>
+
+      <!-- Band Info -->
+      <div class="w-full md:w-2/3">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <h1 class="text-4xl font-bold mb-2 text-zinc-200">{{ band.name }}</h1>
+            <p class="text-lg text-zinc-400">{{ band.genre }}</p>
+          </div>
+          <button
+            (click)="openEditDrawer()"
+            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+          >
+            Edit Band
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="flex gap-6 mb-6">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-zinc-200">{{ band.albums }}</div>
+            <div class="text-sm text-zinc-400">Albums</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-zinc-200">{{ band.followers }}</div>
+            <div class="text-sm text-zinc-400">Followers</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-zinc-200">{{ band.monthlyListeners }}</div>
+            <div class="text-sm text-zinc-400">Monthly Listeners</div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-6" *ngIf="band.description">
+          <p class="text-zinc-300">{{ band.description }}</p>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="space-y-2 text-zinc-400">
+          <div class="flex items-center gap-2">
+            <span class="material-icons text-zinc-500">calendar_today</span>
+            <span>Formed in {{ band.formed }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="material-icons text-zinc-500">location_on</span>
+            <span>{{ band.location }}</span>
+          </div>
+        </div>
+
+        <!-- Members -->
+        <div class="mt-8">
+          <h3 class="text-lg font-semibold text-zinc-200 mb-3">Band Members</h3>
+          <ul class="space-y-2">
+            <li *ngFor="let member of band.members" class="text-zinc-300">{{ member }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Albums Section -->
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold text-zinc-200 mb-6">Albums</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <!-- Placeholder for album cards -->
+        <div class="bg-zinc-800 rounded-lg p-4 text-zinc-400 text-center">
+          Coming Soon
+        </div>
+      </div>
+    </div>
+
+    <!-- Popular Songs Section -->
+    <div>
+      <h2 class="text-2xl font-bold text-zinc-200 mb-6">Popular Songs</h2>
+      <div class="space-y-4">
+        <!-- Placeholder for song list -->
+        <div class="bg-zinc-800 rounded-lg p-4 text-zinc-400 text-center">
+          Coming Soon
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<!-- Edit Band Drawer -->
+<app-drawer
+  [isOpen]="isEditDrawerOpen"
+  (closeDrawer)="closeEditDrawer()"
+  title="Edit Band"
+>
+  <app-edit-form
+    [form]="editForm"
+    (save)="saveBand()"
+    (cancel)="closeEditDrawer()"
+  >
+    <app-form-field
+      [form]="editForm"
+      fieldId="name"
+      label="Band Name"
+      hint="The official name of your band"
+    >
+      <input
+        id="name"
+        type="text"
+        formControlName="name"
+        class="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-zinc-200 focus:outline-none focus:border-indigo-500"
+      />
+    </app-form-field>
+
+    <app-form-field
+      [form]="editForm"
+      fieldId="genre"
+      label="Genre"
+      hint="Primary music genre"
+    >
+      <input
+        id="genre"
+        type="text"
+        formControlName="genre"
+        class="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-zinc-200 focus:outline-none focus:border-indigo-500"
+      />
+    </app-form-field>
+
+    <app-form-field
+      [form]="editForm"
+      fieldId="description"
+      label="Description"
+      hint="Tell us about your band (max 500 characters)"
+    >
+      <textarea
+        id="description"
+        formControlName="description"
+        rows="4"
+        class="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-zinc-200 focus:outline-none focus:border-indigo-500 resize-none"
+      ></textarea>
+    </app-form-field>
+
+    <app-form-field
+      [form]="editForm"
+      fieldId="formed"
+      label="Year Formed"
+      hint="The year your band was formed"
+    >
+      <input
+        id="formed"
+        type="number"
+        formControlName="formed"
+        class="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-zinc-200 focus:outline-none focus:border-indigo-500"
+      />
+    </app-form-field>
+
+    <app-form-field
+      [form]="editForm"
+      fieldId="location"
+      label="Location"
+      hint="City, Country"
+    >
+      <input
+        id="location"
+        type="text"
+        formControlName="location"
+        class="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-zinc-200 focus:outline-none focus:border-indigo-500"
+      />
+    </app-form-field>
+
+    <app-form-field
+      [form]="editForm"
+      fieldId="members"
+      label="Band Members"
+      hint="List members with their roles (e.g., John Doe (Guitar, Vocals))"
+    >
+      <textarea
+        id="members"
+        formControlName="members"
+        rows="4"
+        placeholder="John Doe (Guitar, Vocals), Jane Smith (Bass)"
+        class="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-zinc-200 focus:outline-none focus:border-indigo-500 resize-none"
+      ></textarea>
+    </app-form-field>
+  </app-edit-form>
+</app-drawer>

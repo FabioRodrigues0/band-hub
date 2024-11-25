@@ -1,0 +1,29 @@
+:host {
+  display: block;
+}
+
+.card {
+  @apply bg-zinc-800 rounded-lg overflow-hidden transition-all duration-200;
+  
+  &:hover {
+    @apply bg-zinc-700;
+    transform: translateY(-2px);
+  }
+
+  .card-image {
+    @apply w-full object-cover;
+    aspect-ratio: 1 / 1;
+  }
+
+  .card-content {
+    @apply p-4;
+  }
+
+  .card-title {
+    @apply text-lg font-semibold text-zinc-200 mb-1 truncate;
+  }
+
+  .card-subtitle {
+    @apply text-sm text-zinc-400 truncate;
+  }
+}
