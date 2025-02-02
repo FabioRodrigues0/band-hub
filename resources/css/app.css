@@ -4,12 +4,18 @@
 
 :root {
     --color-primary: theme(colors.green.500);
-    --color-background: theme(colors.zinc.950);
+    --color-background: theme(colors.zinc.100);
     --color-foreground: theme(colors.zinc.900);
 }
+
+.dark {
+    --color-background: theme(colors.zinc.950);
+    --color-foreground: theme(colors.zinc.100);
+}
+
 body {
     background: var(--color-background);
-    color: white;
+    color: var(--color-foreground);
 }
 
 * {
